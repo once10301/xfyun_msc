@@ -13,18 +13,21 @@ import com.iflytek.cloud.SynthesizerListener;
 import com.iflytek.cloud.util.ResourceUtil;
 import com.iflytek.cloud.util.ResourceUtil.RESOURCE_TYPE;
 
+import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
+import io.flutter.view.FlutterView;
 
 
 /**
  * XfyunMscPlugin
  */
-public class XfyunMscPlugin implements MethodCallHandler {
+public class XfyunMscPlugin implements MethodCallHandler, EventChannel.StreamHandler {
     private Registrar registrar;
+    private EventChannel.EventSink events;
     private Result result;
 
     private XfyunMscPlugin(Registrar registrar) {
@@ -35,8 +38,21 @@ public class XfyunMscPlugin implements MethodCallHandler {
      * Plugin registration.
      */
     public static void registerWith(Registrar registrar) {
+        XfyunMscPlugin plugin = new XfyunMscPlugin(registrar);
         final MethodChannel channel = new MethodChannel(registrar.messenger(), "xfyun_msc");
-        channel.setMethodCallHandler(new XfyunMscPlugin(registrar));
+        channel.setMethodCallHandler(plugin);
+        final EventChannel eventChannel = new EventChannel(registrar.messenger(), "xfyun_msc_speaking");
+        eventChannel.setStreamHandler(plugin);
+    }
+
+    @Override
+    public void onListen(Object o, EventChannel.EventSink eventSink) {
+        this.events = eventSink;
+    }
+
+    @Override
+    public void onCancel(Object o) {
+
     }
 
     @Override
@@ -51,7 +67,7 @@ public class XfyunMscPlugin implements MethodCallHandler {
             String speaker = call.argument("speaker");
             int speed = call.argument("speed");
             int volume = call.argument("volume");
-            SpeechSynthesizer  tts = SpeechSynthesizer.createSynthesizer(registrar.activeContext(), ttsInitListener);
+            SpeechSynthesizer tts = SpeechSynthesizer.createSynthesizer(registrar.activeContext(), ttsInitListener);
             //设置使用本地引擎
             tts.setParameter(SpeechConstant.ENGINE_TYPE, type);
             //设置发音人
@@ -67,7 +83,7 @@ public class XfyunMscPlugin implements MethodCallHandler {
             tts.startSpeaking(content, new SynthesizerListener() {
                 @Override
                 public void onSpeakBegin() {
-
+                    events.success(true);
                 }
 
                 @Override
@@ -92,7 +108,7 @@ public class XfyunMscPlugin implements MethodCallHandler {
 
                 @Override
                 public void onCompleted(SpeechError speechError) {
-
+                    events.success(false);
                 }
 
                 @Override

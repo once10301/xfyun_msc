@@ -6,10 +6,14 @@ enum SpeechType { cloud, local }
 enum Speaker { xiaoyan, xiaofeng }
 
 class XfyunMsc {
-  static const MethodChannel _channel = const MethodChannel('xfyun_msc');
+  Stream<bool> stream;
+
+  static const MethodChannel methodChannel = const MethodChannel('xfyun_msc');
+
+  static const EventChannel eventChannel = EventChannel('xfyun_msc_speaking');
 
   static Future<bool> init(String appId) async {
-    return await _channel.invokeMethod('init', {"appId": appId});
+    return await methodChannel.invokeMethod('init', {"appId": appId});
   }
 
   static Future speak(String content, {SpeechType type: SpeechType.local, Speaker speaker: Speaker.xiaoyan, int speed: 50, int volume: 100}) async {
@@ -20,6 +24,13 @@ class XfyunMsc {
       'speed': speed,
       'volume': volume,
     };
-    return await _channel.invokeMethod('speak', params);
+    return await methodChannel.invokeMethod('speak', params);
+  }
+
+  Stream<bool> get onSpeakingChanged {
+    if (stream == null) {
+      stream = eventChannel.receiveBroadcastStream().map((dynamic event) => event as bool);
+    }
+    return stream;
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:xfyun_msc/xfyun_msc.dart';
 
@@ -10,11 +12,24 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   TextEditingController controller = TextEditingController()..text = '请张三到外科诊室';
+  StreamSubscription<bool> subscription;
+  bool speaking = false;
 
   @override
   void initState() {
     super.initState();
     XfyunMsc.init('5dd0055d');
+    subscription = XfyunMsc().onSpeakingChanged.listen((value) {
+      setState(() {
+        speaking = value;
+      });
+    });
+  }
+
+  @override
+  dispose() {
+    super.dispose();
+    subscription.cancel();
   }
 
   @override
@@ -34,6 +49,7 @@ class _MyAppState extends State<MyApp> {
                 child: Text('Speak'),
                 onPressed: () => XfyunMsc.speak(controller.text),
               ),
+              Text(speaking ? '正在播放' : '停止播放'),
             ],
           ),
         ),
