@@ -67,6 +67,7 @@ public class XfyunMscPlugin implements MethodCallHandler, EventChannel.StreamHan
             String speaker = call.argument("speaker");
             int speed = call.argument("speed");
             int volume = call.argument("volume");
+            int pitch = call.argument("pitch");
             SpeechSynthesizer tts = SpeechSynthesizer.createSynthesizer(registrar.activeContext(), ttsInitListener);
             //设置使用本地引擎
             tts.setParameter(SpeechConstant.ENGINE_TYPE, type);
@@ -80,6 +81,8 @@ public class XfyunMscPlugin implements MethodCallHandler, EventChannel.StreamHan
             tts.setParameter(SpeechConstant.SPEED, speed + "");
             //设置合成音量
             tts.setParameter(SpeechConstant.VOLUME, volume + "");
+            //设置合成语调
+            tts.setParameter(SpeechConstant.PITCH, pitch + "");
             tts.startSpeaking(content, new SynthesizerListener() {
                 @Override
                 public void onSpeakBegin() {

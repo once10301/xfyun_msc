@@ -11,7 +11,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  TextEditingController controller = TextEditingController()..text = '请张三到外科诊室';
+  TextEditingController controller = TextEditingController()..text = 'A1001王五请到外科第一诊室就诊';
   StreamSubscription<bool> subscription;
   bool speaking = false;
 
